@@ -1,0 +1,265 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Virtual Network: Use Existing": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "Virtual Network: Name": {
+            "type": "string",
+            "minLength": 3,
+            "defaultValue": "Prod-Vnet"
+        },
+        "Virtual Network: Address Space": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/24"
+        },
+        "Virtual Network: Segmentation": {
+            "type": "string",
+            "allowedValues": [
+                "Simple",
+                "Complex"
+            ]
+        },
+        "AD DS: Use Existing Subnet": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "AD DS: Subnet Name":{
+            "type": "string",
+            "defaultValue": "DCSubnet01"
+        }, 
+        "AD DS: Subnet Address Space":{
+            "type": "string",
+            "defaultValue": "10.0.0.0/29"
+        },
+        "AD DS: # of Servers": {
+            "type":"int",
+            "allowedValues":[
+                0,
+                1,
+                2
+            ],
+            "defaultValue": 2
+        },
+        "AD DS: Server Name": {
+            "type": "string",
+            "defaultValue": "DC",
+            "minLength": 2,
+            "maxLength": 13
+        },
+        "AD FS Auth: Use Existing Subnet": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "AD FS Auth: Subnet Name":{
+            "type": "string",
+            "defaultValue": "AdfsSubnet01"
+        }, 
+        "AD FS Auth: Subnet Address Space":{
+            "type": "string",
+            "defaultValue": "10.0.0.8/29"
+        },
+        "AD FS Auth: # of Servers": {
+            "type":"int",
+            "allowedValues":[
+                0,
+                1,
+                2
+            ],
+            "defaultValue": 2
+        },
+        "AD FS Auth: Server Name": {
+            "type": "string",
+            "defaultValue": "AdfsAuth",
+            "minLength": 2,
+            "maxLength": 13
+        },
+        "AD FS Proxy: Use Existing Subnet": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "AD FS Proxy: Subnet Name":{
+            "type": "string",
+            "defaultValue": "AdfsProxySubnet01"
+        }, 
+        "AD FS Proxy: Subnet Address Space":{
+            "type": "string",
+            "defaultValue": "10.0.0.240/29"
+        },
+        "AD FS Proxy: # of Servers": {
+            "type":"int",
+            "allowedValues":[
+                0,
+                1,
+                2
+            ],
+            "defaultValue": 2
+        },
+        "AD FS Proxy: Server Name": {
+            "type": "string",
+            "defaultValue": "AdfsProxy",
+            "minLength": 2,
+            "maxLength": 13
+        },
+        "VPN Gateway: Deploy": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "VPN Gateway: Use Existing Subnet": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "VPN Gateway: Subnet Address Space":{
+            "type": "string",
+            "defaultValue": "10.0.0.248/29"
+        }
+    },
+    "variables": {
+        "vnet-Name": "[parameters('Virtual Network: Name')]",
+        "vnet-Name-Existing": "[equals(resourceId('Microsoft.Network/virtualNetworks',variables('vnet-Name')),json('null'))]",
+        "vnet-DCSubnet-Deploy": "[and(equals(parameters('Virtual Network: Segmentation'),'Complex'),not(equals(parameters('AD DS: # of Servers'),0)))]",
+        "vnet-DCSubnet-Name": "DCSubnet01",
+        "vnet-DCSubnet-NSG-Name": "[concat('NSG-',variables('vnet-DCSubnet-Name'))]",
+        "vnet-PrivateSubnet-Deploy": "[not(equals(parameters('AD FS Auth: # of Servers'),0))]",
+        "vnet-PrivateSubnet-Name": "[if(equals(parameters('Virtual Network: Segmentation'),'Simple'),'PrivateSubnet01','AdfsAuthSubnet01')]",
+        "vnet-PrivateSubnet-NSG-Name": "[concat('NSG-',variables('vnet-PrivateSubnet-Name'))]",
+        "vnet-DmzSubnet-Deploy": "[not(equals(parameters('AD FS Proxy: # of Servers'),0))]",
+        "vnet-DmzSubnet-Name": "[if(equals(parameters('Virtual Network: Segmentation'),'Simple'),'DmzSubnet01','AdfsProxySubnet01')]",
+        "vnet-DmzSubnet-NSG-Name": "[concat('NSG-',variables('vnet-DmzSubnet-Name'))]"
+    },
+    "resources": [
+        {
+            "condition": "[variables('vnet-DCSubnet-Deploy')]",
+            "name": "[variables('vnet-DCSubnet-NSG-Name')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2017-10-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "default-allow-rdp",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "condition": "[variables('vnet-PrivateSubnet-Deploy')]",
+            "name": "[variables('vnet-PrivateSubnet-NSG-Name')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2017-10-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "default-allow-rdp",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "condition": "[variables('vnet-DmzSubnet-Deploy')]",
+            "name": "[variables('vnet-DmzSubnet-NSG-Name')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2017-10-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "default-allow-rdp",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "condition": "[not(variables('vnet-Name-Existing'))]",
+            "name": "[variables('vnet-Name')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2017-10-01",
+            "location": "[resourceGroup().location]",
+            "properties" : {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('Virtual Network: Address Space')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('vnet-DCSubnet-Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('AD DS: Subnet Address Space')]"
+                        }
+                    },
+                    {
+                        "name": "[variables('vnet-PrivateSubnet-Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('AD FS Auth: Subnet Address Space')]"
+                        }
+                    },
+                    {
+                        "name": "[variables('vnet-DmzSubnet-Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('AD FS Proxy: Subnet Address Space')]"
+                        }
+                    },
+                    {
+                        "name": "GatewaySubnet",
+                        "properties": {
+                            "addressPrefix": "[parameters('VPN Gateway: Subnet Address Space')]"
+                        }
+                    }
+
+                ]
+              }
+        }
+    ],
+    "outputs": {
+        "vnetExisting": {
+            "type": "bool",
+            "value": "[variables('vnet-Name-Existing')]"
+        }
+    }
+}

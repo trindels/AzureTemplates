@@ -1,0 +1,83 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Network-Name":{
+            "type": "string",
+            "defaultValue": "Prod-VNet"
+        },
+        "Network-AddressSpace": {
+            "type": "string",
+            "defaultValue": "10.255.0.0/23"
+        },
+        "Network-Subnet1-Name":{
+            "type": "string",
+            "defaultValue": "PrivateSubnet01"
+        },
+        "Network-Subnet1-AddressRange":{
+            "type": "string",
+            "defaultValue": "10.255.1.0/24"
+        }
+ 
+    },
+    "variables":{
+        "NSG-Subnet1-Name": "[concat(parameters('Network-Name'),'-',parameters('Network-Subnet1-Name'),'-NSG')]"
+    },
+    "resources":[
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('Network-Name')]",
+            "apiVersion": "2017-10-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('Network-AddressSpace')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('Network-Subnet1-Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('Network-Subnet1-AddressRange')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('NSG-Subnet1-Name'))]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('NSG-Subnet1-Name'))]"
+            ]
+        },
+        {
+            "name": "[variables('NSG-Subnet1-Name')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2017-10-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "Any_RDP_Allow",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs":{}
+}
