@@ -4,23 +4,35 @@
     "parameters": {
         "Network-Name":{
             "type": "string",
-            "defaultValue": "Prod-VNet"
+            "defaultValue": "VNet",
+            "metadata": {
+                "description": "Existing Virtual Network Name"
+            }
         },
         "Network-GatewaySubnet-AddressSpace": {
             "type": "string",
-            "defaultValue": "10.0.0.240/29"
+            "defaultValue": "10.255.0.224/27",
+            "metadata": {
+                "description": "New or Existing Virtual Network GatewaySubnet Address Space"
+            }
         },
         "Azure-Gateway-Name": {
             "type": "string",
-            "defaultValue": "GW01"
+            "defaultValue": "GW01",
+            "metadata": {
+                "description": "Appended Value to the Virtual Network Name (i.e. VNetName-GwName)"
+            }
         },
         "Azure-Gateway-VpnType": {
             "type": "string",
             "allowedValues": [
-                "Route-based",
-                "Policy-based"
+                "RouteBased",
+                "PolicyBased"
             ],
-            "defaultValue": "Route-based"
+            "defaultValue": "RouteBased",
+            "metadata": {
+                "description": "RouteBased: (Description Here); PolicyBased: (Description Here)"
+            }
         },
         "Azure-Gateway-Size": {
             "type": "string",
@@ -30,60 +42,122 @@
                 "VpnGw2",
                 "VpnGw3"
             ],
-            "defaultValue": "Basic"
+            "defaultValue": "Basic",
+            "metadata": {
+                "description": "Basic: (Description Here); VpnGw1: (Description Here); VpnGw2: (Description Here); VpnGw3: (Description Here)"
+            }
         },
         "Azure-Gateway-ActiveActive": {
             "type": "bool",
-            "defaultValue": false
+            "defaultValue": false,
+            "metadata": {
+                "description": "Requires: Azure-VPN-Type: RouteBased; Azure-Gateway-Size: VpnGw1, VpnGw2, or VpnGw3"
+            }
         },
         "Azure-Gateway-ConfigureBGP": {
             "type": "bool",
-            "defaultValue": false
+            "defaultValue": false,
+            "metadata": {
+                "description": "Requires: Azure-VPN-Type: RouteBased; Azure-Gateway-Size: VpnGw1, VpnGw2, or VpnGw3"
+            }
         },
         "Azure-Gateway-ASN": {
             "type": "int",
-            "defaultValue": 65515
+            "defaultValue": 65515,
+            "metadata": {
+                "description": "Requires: Azure-VPN-Type: RouteBased; Azure-Gateway-Size: VpnGw1, VpnGw2, or VpnGw3; Azure-Gateway-ConfigureBGP: True"
+            }
+        },
+        "OnPremise-Location-Name": {
+            "type": "string",
+            "defaultValue": "HQ"       
         },
         "OnPremise-Gateway-Name": {
             "type": "string",
-            "defaultValue": "OnPremise-GW01"
+            "defaultValue": "GW01"
         },
         "OnPremise-ExternalIP": {
             "type": "string",
-            "defaultValue": "8.8.8.8"
+            "defaultValue": "136.61.126.245"
         },
         "OnPremise-Internal-Network": {
             "type": "string",
-            "defaultValue": "10.255.1.0/24"
-        } 
+            "defaultValue": "192.168.1.0/24"
+        },
+        "VPN-Shared-Key": {
+            "type": "securestring"           
+        }
     },
     "variables":{
-        "VirtualNetwork-ResourceName": "[concat('Microsoft.Network/virtualNetworks/',parameters('Network-Name'))]",
+        "VirtualNetwork-Name": "[parameters('Network-Name')]",
+        "VirtualNetwork-ResourceName":   "[concat('Microsoft.Network/virtualNetworks/',variables('VirtualNetwork-Name'))]",
+        "VirtualNetwork-ResourceID": "[resourceID('Microsoft.Network/virtualNetworks/',variables('VirtualNetwork-Name'))]",
 
         "GatewaySubnet-Name": "[concat(parameters('Network-Name'),'/GatewaySubnet')]",
-        "GatewaySubnet-ResourceName": "[concat('Microsoft.Network/virtualNetworks/',parameters('GatewaySubnet-Name'))]",
+        "GatewaySubnet-ResourceName": "[concat('subnets/',variables('GatewaySubnet-Name'))]",
+        "GatewaySubnet-Reference": "[concat(variables('VirtualNetwork-ResourceID'),'/subnets/','GatewaySubnet')]",
         "GatewaySubnet-Space": "[parameters('Network-GatewaySubnet-AddressSpace')]",
      
         "Gateway-Name": "[concat(parameters('Network-Name'),'-',parameters('Azure-Gateway-Name'))]",
+        "Gateway-ResourceName":   "[concat('Microsoft.Network/virtualNetworkGateways/',variables('Gateway-Name'))]",
+        "Gateway-ResourceID": "[resourceID('Microsoft.Network/virtualNetworkGateways/',variables('Gateway-Name'))]",
         "Gateway-IP01-Name": "[concat(variables('Gateway-Name'),'-IP01')]",
-        "Gateway-IP01-ResourceName": "[concat('Microsoft.Network/virtualNetworks/',parameters('Gateway-IP01-Name'))]",
+        "Gateway-IP01-ResourceName":   "[concat('Microsoft.Network/publicIPAddresses/',variables('Gateway-IP01-Name'))]",
+        "Gateway-IP01-ResourceID": "[resourceID('Microsoft.Network/publicIPAddresses/',variables('Gateway-IP01-Name'))]",
         "Gateway-IP02-Name": "[concat(variables('Gateway-Name'),'-IP02')]",
-        "Gateway-IP02-ResourceName": "[concat('Microsoft.Network/virtualNetworks/',parameters('Gateway-IP02-Name'))]"
-        
+        "Gateway-IP02-ResourceName":   "[concat('Microsoft.Network/publicIPAddresses/',variables('Gateway-IP02-Name'))]",
+        "Gateway-IP02-ResourceID": "[resourceID('Microsoft.Network/publicIPAddresses/',variables('Gateway-IP02-Name'))]",
+
+        "Gateway-Settings-Type": "[parameters('Azure-Gateway-VpnType')]",
+        "Gateway-Settings-SKU": "[if(equals(variables('Gateway-Settings-Type'),'RouteBased'),parameters('Azure-Gateway-Size'),'Basic')]",
+        "Gateway-Settings-ActiveActive": "[if(not(equals(variables('Gateway-Settings-SKU'),'Basic')),parameters('Azure-Gateway-ActiveActive'),bool('false'))]",
+        "Gateway-Settings-BGP": "[if(not(equals(variables('Gateway-Settings-SKU'),'Basic')),parameters('Azure-Gateway-ConfigureBGP'),bool('false'))]",
+        "Gateway-Settings-BGPSettings": {
+            "asn": "[parameters('Azure-Gateway-ASN')]"
+        },
+
+        "Gateway-IPConfig-IP1": {
+            "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                    "id": "[variables('GatewaySubnet-Reference')]"
+                },
+                "publicIPAddress": {
+                    "id": "[resourceID('Microsoft.Network/publicIPAddresses',variables('Gateway-IP01-Name'))]"
+                }
+            },
+            "name": "vnetGatewayConfig01"
+        },
+        "Gateway-IPConfig-IP2": {
+            "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                    "id": "[variables('GatewaySubnet-Reference')]"
+                },
+                "publicIPAddress": {
+                    "id": "[resourceID('Microsoft.Network/publicIPAddresses',variables('Gateway-IP02-Name'))]"
+                }
+            },
+            "name": "vnetGatewayConfig02"
+        },
+
+        "OP-Gateway-Name": "[concat(parameters('OnPremise-Location-Name'),'-',parameters('OnPremise-Gateway-Name'))]",
+        "OP-Gateway-ResourceName":   "[concat('Microsoft.Network/localNetworkGateways/',variables('OP-Gateway-Name'))]",
+        "OP-Gateway-ResourceID": "[resourceID('Microsoft.Network/localNetworkGateways/',variables('OP-Gateway-Name'))]",
+        "OP-Gateway-ExtIP": "[parameters('OnPremise-ExternalIP')]",
+        "OP-Gateway-IntIP": "[split(replace(parameters('OnPremise-Internal-Network'),' ',''),',')]",
+
+        "Connection-Name": "[concat(parameters('Network-Name'),'_To_',parameters('OnPremise-Location-Name'),'-VPN')]"
     },
     "resources":[
         {
-            "condition": "[variables('BuildGatewaySubnet')]",
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "name": "[variables('GatewaySubnet-Name')]",
             "apiVersion": "2017-10-01",
             "location": "[resourceGroup().location]",
             "properties": {
                 "addressPrefix": "[variables('GatewaySubnet-Space')]"
-            },
-            "dependsOn": [
-                "[variables('VirtualNetwork-ResourceName')]"
-            ]
+            }
         },
         {
             "apiVersion": "2017-10-01",
@@ -95,6 +169,7 @@
             }
         },
         {
+            "condition": "[variables('Gateway-Settings-ActiveActive')]",
             "apiVersion": "2017-10-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('Gateway-IP02-Name')]",
@@ -106,35 +181,57 @@
         {
             "apiVersion": "2017-10-01",
             "type": "Microsoft.Network/virtualNetworkGateways",
-            "name": "[parameters('gatewayName')]",
+            "name": "[variables('Gateway-Name')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[variables('GatewaySubnet-ResourceName'))]",
-                "[variables('Gateway-IP01-ResourceName'))]",
-                "[variables('Gateway-IP02-ResourceName'))]"
+                "[variables('GatewaySubnet-Reference')]",
+                "[variables('Gateway-IP01-ResourceName')]",
+                "[variables('Gateway-IP02-ResourceName')]"
             ],
             "properties": {
-                "ipConfigurations": [
-                    {
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[resourceID(concat('Microsoft.Network/virtualNetworks/',variables('GatewaySubnet-Name'))]"
-                            },
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('Gateway-Name'),'-IP01')]"
-                            }
-                        },
-                        "name": "vnetGatewayConfig"
-                    }
-                ],
-                "sku": {
-                    "name": "[parameters('Azure-Gateway-Size')]",
-                    "tier": "[parameters('Azure-Gateway-Size')]"
-                },
+                "ipConfigurations": "[if(not(variables('Gateway-Settings-ActiveActive')),createarray(variables('Gateway-IPConfig-IP1')),createarray(variables('Gateway-IPConfig-IP1'),variables('Gateway-IPConfig-IP2')))]",
                 "gatewayType": "Vpn",
-                "vpnType": "[parameters('Azure-Gateway-VpnType')]",
-                "enableBgp": "false"
+                "vpnType": "[variables('Gateway-Settings-Type')]",
+                "enableBgp": "[variables('Gateway-Settings-BGP')]",
+                "activeActive": "[variables('Gateway-Settings-ActiveActive')]",
+                "sku": {
+                    "name": "[variables('Gateway-Settings-SKU')]",
+                    "tier": "[variables('Gateway-Settings-SKU')]"
+                },
+                "bgpSettings": "[if(variables('Gateway-Settings-BGP'),variables('Gateway-Settings-BGPSettings'),json('null'))]"
+            }
+        },
+        {
+            "apiVersion": "2017-10-01",
+            "type": "Microsoft.Network/localNetworkGateways",
+            "name": "[variables('OP-Gateway-Name')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "localNetworkAddressSpace": {
+                    "addressPrefixes": "[variables('OP-Gateway-IntIP')]"
+                },
+                "gatewayIpAddress": "[variables('OP-Gateway-ExtIP')]"
+            }
+        },
+        {
+            "apiVersion": "2017-10-01",
+            "name": "[variables('Connection-Name')]",
+            "type": "Microsoft.Network/connections",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[variables('Gateway-ResourceName')]",
+                "[variables('OP-Gateway-ResourceName')]"
+            ],
+            "properties": {
+                "virtualNetworkGateway1": {
+                    "id": "[variables('Gateway-ResourceID')]"
+                },
+                "localNetworkGateway2": {
+                    "id": "[variables('OP-Gateway-ResourceID')]"
+                },
+                "connectionType": "IPsec",
+                "routingWeight": 10,
+                "sharedKey": "[parameters('VPN-Shared-Key')]"
             }
         }
     ],

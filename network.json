@@ -4,7 +4,7 @@
     "parameters": {
         "Network-Name":{
             "type": "string",
-            "defaultValue": "Prod-VNet"
+            "defaultValue": "VNet"
         },
         "Network-AddressSpace": {
             "type": "string",
@@ -21,6 +21,7 @@
  
     },
     "variables":{
+        "Network-AddressSpace": "[split(replace(parameters('Network-AddressSpace'),' ',''),',')]",
         "NSG-Subnet1-Name": "[concat(parameters('Network-Name'),'-',parameters('Network-Subnet1-Name'),'-NSG')]"
     },
     "resources":[
@@ -31,9 +32,7 @@
             "location": "[resourceGroup().location]",
             "properties": {
                 "addressSpace": {
-                    "addressPrefixes": [
-                        "[parameters('Network-AddressSpace')]"
-                    ]
+                    "addressPrefixes": "[variables('Network-AddressSpace')]"
                 },
                 "subnets": [
                     {
