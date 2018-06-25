@@ -58,33 +58,16 @@
             "properties": {
                 "securityRules": [ 
                     { 
-                        "name": "default-allow-rdp", 
+                        "name": "TylerRDP", 
                         "properties": { 
                             "protocol": "Tcp", 
                             "sourcePortRange": "*", 
                             "destinationPortRange": "3389", 
-                            "sourceAddressPrefix": "75.35.6.200", 
+                            "sourceAddressPrefix": "136.61.126.245", 
                             "destinationAddressPrefix": "*", 
                             "access": "Allow", 
                             "priority": 1000, 
                             "direction": "Inbound", 
-                            "sourcePortRanges": [], 
-                            "destinationPortRanges": [], 
-                            "sourceAddressPrefixes": [], 
-                            "destinationAddressPrefixes": [] 
-                        } 
-                    }, 
-                    { 
-                        "name": "Port_8080", 
-                        "properties": { 
-                            "protocol": "*", 
-                            "sourcePortRange": "*", 
-                            "destinationPortRange": "*", 
-                            "sourceAddressPrefix": "*", 
-                            "destinationAddressPrefix": "*", 
-                            "access": "Allow", 
-                            "priority": 100, 
-                            "direction": "Outbound", 
                             "sourcePortRanges": [], 
                             "destinationPortRanges": [], 
                             "sourceAddressPrefixes": [], 
