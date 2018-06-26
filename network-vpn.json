@@ -4,7 +4,7 @@
     "parameters": {
         "Network-Name":{
             "type": "string",
-            "defaultValue": "VNet",
+            "defaultValue": "VNetwork",
             "metadata": {
                 "description": "Existing Virtual Network Name"
             }
