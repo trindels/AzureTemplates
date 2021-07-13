@@ -28,22 +28,13 @@
                 "description": "Select your Palo Alto Firewall Deployment Model"
             }
         },
-        "customData": {
-            "defaultValue": "echo customData",
-            "type": "String",
-            "metadata": {
-                "description": "String passed down to the Virtual Machine."
-            }
-        },
         "vmName1": {
-            "defaultValue": "VM-Series01",
             "type": "String",
             "metadata": {
                 "description": "Name of VM-Series VM in the Azure portal"
             }
         },
         "vmName2": {
-            "defaultValue": "VM-Series02",
             "type": "String",
             "metadata": {
                 "description": "Name of VM-Series VM in the Azure portal"
@@ -98,13 +89,53 @@
                 "description": "Azure VM size for VM-Series"
             }
         },
+        "paloAltoAdminUsername": {
+            "type": "String",
+            "metadata": {
+                "description": "Username of the administrator account of VM-Series"
+            }
+        },
+        "paloAltoAuthenticationType": {
+            "defaultValue": "password",
+            "allowedValues": [
+                "sshPublicKey",
+                "password"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Type of administrator user authentication "
+            }
+        },
+        "paloAltoPasswordOrKey": {
+            "type": "SecureString",
+            "metadata": {
+                "description": "Password or ssh key for the administrator account of VM-Series."
+            }
+        },
+        "bootstrap": {
+            "defaultValue": "no",
+            "allowedValues": [
+                "yes",
+                "no"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Pass bootstrap data to VM"
+            }
+        },
+        "customData": {
+            "defaultValue": "echo customData",
+            "type": "String",
+            "metadata": {
+                "description": "String passed down to the Virtual Machine."
+            }
+        },
         "virtualNetworkName": {
-            "defaultValue": "fwVNET",
             "type": "String",
             "metadata": {
                 "description": "Name of the Virtual Network (VNET)"
             }
-        },
+        },        
         "vnetNewOrExisting": {
             "defaultValue": "new",
             "allowedValues": [
@@ -116,6 +147,13 @@
                 "description": "Use new or existing VNET"
             }
         },
+        "virtualNetworkExistingRGName": {
+            "defaultValue": "#n/a",
+            "type": "String",
+            "metadata": {
+                "description": "Name of resource group of existing VNET (if applicable)"
+            }
+        },
         "virtualNetworkAddressPrefixes": {
             "defaultValue": "192.168.0.0/16",
             "type": "String",
@@ -123,107 +161,126 @@
                 "description": "Virtual network address CIDR"
             }
         },
-        "virtualNetworkExistingRGName": {
-            "defaultValue": "",
-            "type": "String",
-            "metadata": {
-                "description": "Name of resource group of existing VNET (if applicable)"
-            }
-        },
-        "subnet0Name": {
+        "mgmtSubnetName": {
             "defaultValue": "Mgmt",
             "type": "String",
             "metadata": {
                 "description": "Subnet for Management"
             }
         },
-        "subnet1Name": {
-            "defaultValue": "Untrust",
-            "type": "String",
-            "metadata": {
-                "description": "Subnet for Untrust"
-            }
-        },
-        "subnet2Name": {
-            "defaultValue": "Trust",
-            "type": "String",
-            "metadata": {
-                "description": "Subnet for Trust"
-            }
-        },
-        "subnet3Name": {
-            "defaultValue": "HA",
-            "type": "String",
-            "metadata": {
-                "description": "Subnet for HA"
-            }
-        },
-        "subnet0Prefix": {
+        "mgmtSubnetPrefix": {
             "defaultValue": "192.168.0.0/24",
             "type": "String",
             "metadata": {
                 "description": "Mgmt subnet CIDR"
             }
         },
-        "subnet1Prefix": {
+        "mgmtIpAddressVm01": {
+            "defaultValue": "192.168.0.4",
+            "type": "String",
+            "metadata": {
+                "description": "Mgmt Interface IP Address of VM01"
+            }
+        },
+        "mgmtIpAddressVm02": {
+            "defaultValue": "192.168.0.5",
+            "type": "String",
+            "metadata": {
+                "description": "Mgmt Interface IP Address of VM02"
+            }
+        },
+        "untrustSubnetName": {
+            "defaultValue": "Untrust",
+            "type": "String",
+            "metadata": {
+                "description": "Subnet for Untrust"
+            }
+        },
+        "untrustSubnetPrefix": {
             "defaultValue": "192.168.1.0/24",
             "type": "String",
             "metadata": {
                 "description": "Untrust subnet CIDR"
             }
         },
-        "subnet2Prefix": {
+        "untrustIpAddressVm01": {
+            "defaultValue": "192.168.1.4",
+            "type": "String",
+            "metadata": {
+                "description": "Untrust Interface IP Address of VM01"
+            }
+        },
+        "untrustIpAddressVm02": {
+            "defaultValue": "192.168.1.5",
+            "type": "String",
+            "metadata": {
+                "description": "Untrust Interface IP Address of VM02"
+            }
+        },
+        "trustSubnetName": {
+            "defaultValue": "Trust",
+            "type": "String",
+            "metadata": {
+                "description": "Subnet for Trust"
+            }
+        },
+        "trustSubnetPrefix": {
             "defaultValue": "192.168.2.0/24",
             "type": "String",
             "metadata": {
                 "description": "Trust subnet CIDR"
             }
         },
-        "subnet3Prefix": {
-            "defaultValue": "192.168.3.0/24",
-            "type": "String",
-            "metadata": {
-                "description": "Trust subnet CIDR"
-            }
-        },
-        "subnet1StartAddress": {
-            "defaultValue": "192.168.1.4",
-            "type": "String",
-            "metadata": {
-                "description": "Untrust subnet start address"
-            }
-        },
-        "subnet2StartAddress": {
+        "trustIpAddressVm01": {
             "defaultValue": "192.168.2.4",
             "type": "String",
             "metadata": {
-                "description": "Trust subnet start address"
+                "description": "Trust Interface IP Address of VM01"
             }
         },
-        "authenticationType": {
-            "defaultValue": "password",
-            "allowedValues": [
-                "sshPublicKey",
-                "password"
-            ],
+        "trustIpAddressVm02": {
+            "defaultValue": "192.168.2.5",
             "type": "String",
             "metadata": {
-                "description": "Type of administrator user authentication "
+                "description": "Trust Interface IP Address of VM02"
             }
         },
-        "adminUsername": {
+        "trustIpAddressLB": {
+            "defaultValue": "192.168.2.6",
             "type": "String",
             "metadata": {
-                "description": "Username of the administrator account of VM-Series"
+                "description": "Trust IP Address of Internal Load Balancer"
             }
         },
-        "adminPasswordOrKey": {
-            "type": "SecureString",
+        "haSubnetName": {
+            "defaultValue": "HA",
+            "type": "String",
             "metadata": {
-                "description": "Password or ssh key for the administrator account of VM-Series."
+                "description": "Subnet for HA"
             }
         },
-        "publicIPNewOrExisting": {
+        "haSubnetPrefix": {
+            "defaultValue": "192.168.3.0/24",
+            "type": "String",
+            "metadata": {
+                "description": "HA subnet CIDR"
+            }
+        },
+        "haIpAddressVm01": {
+            "defaultValue": "192.168.3.4",
+            "type": "String",
+            "metadata": {
+                "description": "HA Interface IP Address of VM01"
+            }
+        },
+        "haIpAddressVm02": {
+            "defaultValue": "192.168.3.5",
+            "type": "String",
+            "metadata": {
+                "description": "HA Interface IP Address of VM02"
+            }
+        },
+        "publicIPAddressNewOrExisting": {
             "defaultValue": "new",
             "allowedValues": [
                 "new",
@@ -232,6 +289,13 @@
             "type": "String",
             "metadata": {
                 "description": "Public IP for mgmt interface is new or existing"
+            }
+        },
+        "publicIPAddressExistingRGName": {
+            "defaultValue": "#n/a",
+            "type": "String",
+            "metadata": {
+                "description": "Name of existing public IP resource group"
             }
         },
         "publicIPAddressName1": {
@@ -246,15 +310,8 @@
                 "description": "Name of existing public IP resource"
             }
         },
-        "publicIPRGName": {
-            "defaultValue": "None",
-            "type": "String",
-            "metadata": {
-                "description": "Name of existing public IP resource group"
-            }
-        },
         "publicIPAllocationMethod": {
-            "defaultValue": "Dynamic",
+            "defaultValue": "Static",
             "allowedValues": [
                 "Dynamic",
                 "Static"
@@ -262,24 +319,6 @@
             "type": "String",
             "metadata": {
                 "description": "Allocation method of public IP resource"
-            }
-        },
-        "bootstrap": {
-            "defaultValue": "no",
-            "allowedValues": [
-                "yes",
-                "no"
-            ],
-            "type": "String",
-            "metadata": {
-                "description": "Pass bootstrap data to VM"
-            }
-        },
-        "zone": {
-            "defaultValue": "None",
-            "type": "String",
-            "metadata": {
-                "description": "Availability Zone for VM-Series"
             }
         },
         "availabilitySetName": {
@@ -293,6 +332,37 @@
         "availabilitySetPlatformUpdateDomainCount": {
             "defaultValue": "5",
             "type": "String"
+        },
+        "externalLoadBalancerName": {
+            "type": "String"
+        },
+        "externalLoadBalancerPublicIPAddressName": {
+            "type": "String",
+            "metadata": {
+                "description": "Name of existing External Load Balancer - Public IP resource"
+            }
+        },
+
+        "externalLoadBalancerPublicIPAddressNewOrExisting": {
+            "defaultValue": "new",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Public IP for External Load Balancer is new or existing"
+            }
+        },
+        "externalLoadBalancerPublicIPAddressExistingRGName": {
+            "defaultValue": "#n/a",
+            "type": "String",
+            "metadata": {
+                "description": "Name of existing External Load Balancer - Public IP resource group"
+            }
+        },
+        "internalLoadBalancerName": {
+            "type": "String"
         }
     },
     "variables": {
@@ -302,27 +372,14 @@
         "nsgName": "DefaultNSG",
         "vm1nicName": "[concat(parameters('vmName1'), '-eth')]",
         "vm2nicName": "[concat(parameters('vmName2'), '-eth')]",
-        "FWPrivateIPAddressUntrust": "[parameters('subnet1StartAddress')]",
-        "FWPrivateIPAddressTrust": "[parameters('subnet2StartAddress')]",
-        "existingVnetID": "[resourceId(parameters('virtualNetworkExistingRGName'),concat('Microsoft.Network','/','virtualNetworks'),parameters('virtualNetworkName'))]",
-        "existingSubnet0Ref": "[concat(variables('existingVnetID'),'/subnets/',parameters('subnet0Name'))]",
-        "existingSubnet1Ref": "[concat(variables('existingVnetID'),'/subnets/',parameters('subnet1Name'))]",
-        "existingSubnet2Ref": "[concat(variables('existingVnetID'),'/subnets/',parameters('subnet2Name'))]",
-        "existingSubnet3Ref": "[concat(variables('existingVnetID'),'/subnets/',parameters('subnet3Name'))]",
-        "newVnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
-        "newSubnet0Ref": "[concat(variables('newVnetID'),'/subnets/',parameters('subnet0Name'))]",
-        "newSubnet1Ref": "[concat(variables('newVnetID'),'/subnets/',parameters('subnet1Name'))]",
-        "newSubnet2Ref": "[concat(variables('newVnetID'),'/subnets/',parameters('subnet2Name'))]",
-        "newSubnet3Ref": "[concat(variables('newVnetID'),'/subnets/',parameters('subnet3Name'))]",
-        "vnetID": "[if(equals(parameters('vnetNewOrExisting'),'new'), variables('newVnetID'), variables('existingVnetID'))]",
-        "subnet0Ref": "[if(equals(parameters('vnetNewOrExisting'),'new'), variables('newSubnet0Ref'), variables('existingSubnet0Ref'))]",
-        "subnet1Ref": "[if(equals(parameters('vnetNewOrExisting'),'new'), variables('newSubnet1Ref'), variables('existingSubnet1Ref'))]",
-        "subnet2Ref": "[if(equals(parameters('vnetNewOrExisting'),'new'), variables('newSubnet2Ref'), variables('existingSubnet2Ref'))]",
-        "subnet3Ref": "[if(equals(parameters('vnetNewOrExisting'),'new'), variables('newSubnet3Ref'), variables('existingSubnet3Ref'))]",
+        "vnetIdExisting": "[resourceId(parameters('virtualNetworkExistingRGName'),'Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
+        "vnetIdNew": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
+        "mgmtSubnetRef": "[concat(if(equals(parameters('vnetNewOrExisting'),'new'), variables('vnetIdNew'), variables('vnetIdExisting')),'/subnets/',parameters('mgmtSubnetName'))]",
+        "trustSubnetRef": "[concat(if(equals(parameters('vnetNewOrExisting'),'new'), variables('vnetIdNew'), variables('vnetIdExisting')),'/subnets/',parameters('trustSubnetName'))]",
+        "untrustSubnetRef": "[concat(if(equals(parameters('vnetNewOrExisting'),'new'), variables('vnetIdNew'), variables('vnetIdExisting')),'/subnets/',parameters('untrustSubnetName'))]",
+        "haSubnetRef": "[concat(if(equals(parameters('vnetNewOrExisting'),'new'), variables('vnetIdNew'), variables('vnetIdExisting')),'/subnets/',parameters('haSubnetName'))]",
         "virtualNetworkAddressPrefix": "[split(parameters('virtualNetworkAddressPrefixes'),',')]",
-        "zones": [
-            "[parameters('zone')]"
-        ],
+        "externalLoadBalancerPublicIpRef": "[if(equals(parameters('externalLoadBalancerPublicIPAddressNewOrExisting'), 'existing'), resourceId(parameters('externalLoadBalancerPublicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('externalLoadBalancerPublicIPAddressName')), resourceId('Microsoft.Network/publicIPAddresses',parameters('externalLoadBalancerPublicIPAddressName')))]",
         "availabilitySet": {
             "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
         },
@@ -331,40 +388,40 @@
             "ssh": {
                 "publicKeys": [
                     {
-                        "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-                        "keyData": "[parameters('adminPasswordOrKey')]"
+                        "path": "[concat('/home/', parameters('paloAltoAdminUsername'), '/.ssh/authorized_keys')]",
+                        "keyData": "[parameters('paloAltoPasswordOrKey')]"
                     }
                 ]
             }
         },
         "subnetsBase": [
             {
-                "name": "[parameters('subnet0Name')]",
+                "name": "[parameters('mgmtSubnetName')]",
                 "properties": {
-                    "addressPrefix": "[parameters('subnet0Prefix')]",
+                    "addressPrefix": "[parameters('mgmtSubnetPrefix')]",
                     "networkSecurityGroup": {
                         "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
                     }
                 }
             },
             {
-                "name": "[parameters('subnet1Name')]",
+                "name": "[parameters('trustSubnetName')]",
                 "properties": {
-                    "addressPrefix": "[parameters('subnet1Prefix')]"
+                    "addressPrefix": "[parameters('untrustSubnetPrefix')]"
                 }
             },
             {
-                "name": "[parameters('subnet2Name')]",
+                "name": "[parameters('untrustSubnetName')]",
                 "properties": {
-                    "addressPrefix": "[parameters('subnet2Prefix')]"
+                    "addressPrefix": "[parameters('trustSubnetPrefix')]"
                 }
             }
         ],
         "subnetsAP": [
             {
-                "name": "[parameters('subnet3Name')]",
+                "name": "[parameters('haSubnetName')]",
                 "properties": {
-                    "addressPrefix": "[parameters('subnet3Prefix')]"
+                    "addressPrefix": "[parameters('haSubnetPrefix')]"
                 }
             }
         ],
@@ -432,6 +489,23 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-07-01",
+            "name": "[parameters('externalLoadBalancerPublicIPAddressName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static",
+                "dnsSettings": {
+                    "domainNameLabel": "[parameters('externalLoadBalancerPublicIPAddressName')]"
+                }
+            },
+            "condition": "[equals(parameters('externalLoadBalancerPublicIPAddressNewOrExisting'), 'new')]"
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-07-01",
             "name": "[parameters('publicIPAddressName1')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -444,7 +518,7 @@
                     "domainNameLabel": "[parameters('publicIPAddressName1')]"
                 }
             },
-            "condition": "[equals(parameters('publicIPNewOrExisting'), 'new')]"
+            "condition": "[equals(parameters('publicIPAddressNewOrExisting'), 'new')]"
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
@@ -461,7 +535,7 @@
                     "domainNameLabel": "[parameters('publicIPAddressName2')]"
                 }
             },
-            "condition": "[and(not(equals(parameters('deploymentModel'),'single-server')),equals(parameters('publicIPNewOrExisting'), 'new'))]"
+            "condition": "[and(not(equals(parameters('deploymentModel'),'single-server')),equals(parameters('publicIPAddressNewOrExisting'), 'new'))]"
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
@@ -525,9 +599,7 @@
             ],
             "properties": {
                 "addressSpace": {
-                    "addressPrefixes": [
-                        "[variables('virtualNetworkAddressPrefix')]"
-                    ]
+                    "addressPrefixes": "[variables('virtualNetworkAddressPrefix')]"
                 },
                 "subnets": "[if(equals(parameters('deploymentModel'),'active-passive'),variables('subnetsAP'),variables('subnets'))]"
             },
@@ -547,12 +619,14 @@
                     {
                         "name": "ipconfig-mgmt",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('mgmtIpAddressVm01')]",
+                            "privateIPAddressVersion": "IPv4",
                             "publicIPAddress": {
-                                "id": "[if(equals(parameters('publicIPNewOrExisting'), 'existing'), resourceId(parameters('publicIPRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName1')), resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName1')))]"
+                                "id": "[if(equals(parameters('publicIPAddressNewOrExisting'), 'existing'), resourceId(parameters('publicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName1')), resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName1')))]"
                             },
                             "subnet": {
-                                "id": "[variables('subnet0Ref')]"
+                                "id": "[variables('mgmtSubnetRef')]"
                             }
                         }
                     }
@@ -565,7 +639,8 @@
             "name": "[concat(variables('vm1nicName'), '1')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+                "[resourceId('Microsoft.Network/loadBalancers', parameters('externalLoadBalancerName'))]"
             ],
             "properties": {
                 "enableIPForwarding": true,
@@ -574,10 +649,17 @@
                     {
                         "name": "ipconfig-untrust",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('untrustIpAddressVm01')]",
+                            "privateIPAddressVersion": "IPv4",
                             "subnet": {
-                                "id": "[variables('subnet1Ref')]"
-                            }
+                                "id": "[variables('trustSubnetRef')]"
+                            },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('externalLoadBalancerName')), '/backendAddressPools/BackendPool01')]"
+                                }
+                            ]
                         }
                     }
                 ]
@@ -589,7 +671,8 @@
             "name": "[concat(variables('vm1nicName'), '2')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+                "[resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancerName'))]"
             ],
             "properties": {
                 "enableIPForwarding": true,
@@ -598,10 +681,17 @@
                     {
                         "name": "ipconfig-trust",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('trustIpAddressVm01')]",
+                            "privateIPAddressVersion": "IPv4",
                             "subnet": {
-                                "id": "[variables('subnet2Ref')]"
-                            }
+                                "id": "[variables('untrustSubnetRef')]"
+                            },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancerName')), '/backendAddressPools/BackendPool01')]"
+                                }
+                            ]
                         }
                     }
                 ]
@@ -622,9 +712,11 @@
                     {
                         "name": "ipconfig-ha",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('haIpAddressVm01')]",
+                            "privateIPAddressVersion": "IPv4",
                             "subnet": {
-                                "id": "[variables('subnet3Ref')]"
+                                "id": "[variables('haSubnetRef')]"
                             }
                         }
                     }
@@ -646,12 +738,14 @@
                     {
                         "name": "ipconfig-mgmt",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('mgmtIpAddressVm02')]",
+                            "privateIPAddressVersion": "IPv4",
                             "publicIPAddress": {
-                                "id": "[if(equals(parameters('publicIPNewOrExisting'), 'existing'), resourceId(parameters('publicIPRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName2')), resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName2')))]"
+                                "id": "[if(equals(parameters('publicIPAddressNewOrExisting'), 'existing'), resourceId(parameters('publicIPAddressExistingRGName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName2')), resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName2')))]"
                             },
                             "subnet": {
-                                "id": "[variables('subnet0Ref')]"
+                                "id": "[variables('mgmtSubnetRef')]"
                             }
                         }
                     }
@@ -665,7 +759,8 @@
             "name": "[concat(variables('vm2nicName'), '1')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+                "[resourceId('Microsoft.Network/loadBalancers', parameters('externalLoadBalancerName'))]"
             ],
             "properties": {
                 "enableIPForwarding": true,
@@ -674,10 +769,17 @@
                     {
                         "name": "ipconfig-untrust",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('untrustIpAddressVm02')]",
+                            "privateIPAddressVersion": "IPv4",
                             "subnet": {
-                                "id": "[variables('subnet1Ref')]"
-                            }
+                                "id": "[variables('trustSubnetRef')]"
+                            },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('externalLoadBalancerName')), '/backendAddressPools/BackendPool01')]"
+                                }
+                            ]
                         }
                     }
                 ]
@@ -690,7 +792,8 @@
             "name": "[concat(variables('vm2nicName'), '2')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+                "[resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancerName'))]"
             ],
             "properties": {
                 "enableIPForwarding": true,
@@ -699,10 +802,17 @@
                     {
                         "name": "ipconfig-trust",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('trustIpAddressVm02')]",
+                            "privateIPAddressVersion": "IPv4",
                             "subnet": {
-                                "id": "[variables('subnet2Ref')]"
-                            }
+                                "id": "[variables('untrustSubnetRef')]"
+                            },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancerName')), '/backendAddressPools/BackendPool01')]"
+                                }
+                            ]
                         }
                     }
                 ]
@@ -724,9 +834,11 @@
                     {
                         "name": "ipconfig-ha",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('haIpAddressVm02')]",
+                            "privateIPAddressVersion": "IPv4",
                             "subnet": {
-                                "id": "[variables('subnet3Ref')]"
+                                "id": "[variables('haSubnetRef')]"
                             }
                         }
                     }
@@ -765,7 +877,6 @@
                 "[concat(variables('vm1nicName'), '2')]",
                 "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             ],
-            "zones": "[if(equals(parameters('zone'), 'None'), json('null'), variables('zones'))]",
             "plan": {
                 "name": "[variables('imageSku')]",
                 "product": "[variables('imageOffer')]",
@@ -777,9 +888,9 @@
                 },
                 "osProfile": {
                     "computerName": "[parameters('vmName1')]",
-                    "adminUsername": "[parameters('adminUsername')]",
-                    "adminPassword": "[parameters('adminPasswordOrKey')]",
-                    "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]",
+                    "adminUsername": "[parameters('paloAltoAdminUsername')]",
+                    "adminPassword": "[parameters('paloAltoPasswordOrKey')]",
+                    "linuxConfiguration": "[if(equals(parameters('paloAltoAuthenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]",
                     "customData": "[if(equals(parameters('bootstrap'), 'no'), json('null'), base64(parameters('customData')))]"
                 },
                 "storageProfile": {
@@ -813,7 +924,6 @@
                 "[concat(variables('vm2nicName'), '2')]",
                 "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
             ],
-            "zones": "[if(equals(parameters('zone'), 'None'), json('null'), variables('zones'))]",
             "plan": {
                 "name": "[variables('imageSku')]",
                 "product": "[variables('imageOffer')]",
@@ -825,9 +935,9 @@
                 },
                 "osProfile": {
                     "computerName": "[parameters('vmName2')]",
-                    "adminUsername": "[parameters('adminUsername')]",
-                    "adminPassword": "[parameters('adminPasswordOrKey')]",
-                    "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]",
+                    "adminUsername": "[parameters('paloAltoAdminUsername')]",
+                    "adminPassword": "[parameters('paloAltoPasswordOrKey')]",
+                    "linuxConfiguration": "[if(equals(parameters('paloAltoAuthenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]",
                     "customData": "[if(equals(parameters('bootstrap'), 'no'), json('null'), base64(parameters('customData')))]"
                 },
                 "storageProfile": {
@@ -847,6 +957,130 @@
                 "availabilitySet": "[if(equals(parameters('availabilitySetName'), 'None'), json('null'), variables('availabilitySet'))]"
             },
             "condition": "[not(equals(parameters('deploymentModel'),'single-server'))]"
+        },
+        {
+            "type": "Microsoft.Network/loadBalancers",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('internalLoadBalancerName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+            ],
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "LoadBalancerFrontEnd",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('trustIpAddressLB')]",
+                            "privateIPAddressVersion": "IPv4",
+                            "subnet": {
+                                "id": "[variables('untrustSubnetRef')]"
+                            }
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "BackendPool01",
+                        "properties": {
+                            "loadBalancerBackendAddresses": []
+                        }
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "HARule",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancerName')), '/frontendIPConfigurations/LoadBalancerFrontEnd')]"
+                            },
+                            "frontendPort": 0,
+                            "backendPort": 0,
+                            "enableFloatingIP": true,
+                            "idleTimeoutInMinutes": 30,
+                            "protocol": "All",
+                            "enableTcpReset": true,
+                            "loadDistribution": "SourceIPProtocol",
+                            "disableOutboundSnat": true,
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancerName')), '/backendAddressPools/BackendPool01')]"
+                            },
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancerName')), '/probes/Probe22')]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "Probe22",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": 22,
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ],
+                "inboundNatRules": [],
+                "outboundRules": [],
+                "inboundNatPools": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/loadBalancers",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('externalLoadBalancerName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('externalLoadBalancerPublicIPAddressName'))]"
+            ],
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "LoadBalancerFrontEnd",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[variables('externalLoadBalancerPublicIpRef')]"
+                            }
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "BackendPool01",
+                        "properties": {
+                            "loadBalancerBackendAddresses": []
+                        }
+                    }
+                ],
+                "loadBalancingRules": [],
+                "probes": [
+                    {
+                        "name": "Probe22",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": 22,
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ],
+                "inboundNatRules": [],
+                "outboundRules": [],
+                "inboundNatPools": []
+            }
         }
     ]
 }
